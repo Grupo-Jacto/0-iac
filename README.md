@@ -22,13 +22,13 @@ Módulos de infraestrutura como código (IAC) para provisionamento de recursos n
 
 - [GCP SDK](https://cloud.google.com/sdk/docs/install)
 
-## Variáveis
+## Parâmetros
 
-As variáveis de entrada para os módulos estão definidas nos arquivos `variables.tf` de cada módulo.
+Os parâmetros estão disponíveis nos `README.md` de cada módulo.
 
-## Outputs
+## Saídas
 
-Os outputs dos módulos estão definidos nos arquivos `outputs.tf` de cada módulo.
+As saídas estão disponíveis nos `README.md` de cada módulo.
 
 ## Contribuições
 
@@ -61,7 +61,7 @@ git push origin feature/nome-da-feature
 
 ## Suporte
 
-Em caso de dúvidas ou problemas, abra uma [issue](https://github.com/paulosfjunior/iac/issues/new)
+Em caso de dúvidas ou problemas, abra uma [ISSUE](https://github.com/paulosfjunior/iac/issues/new)
 
 ## Documentação
 
