@@ -2,9 +2,9 @@
 
 [IAC](../README.md) / **[Storage](#módulo-storage)**
 
-Este módulo cria um storage bucket para AWS e GCP.
+Módulo de infraestrutura como código (IAC) para provisionamento de storage bucket para AWS e GCP.
 
-## Providers disponíveis
+## Providers disponíveis para o módulo
 
 - [**AWS**](./aws/README.md)
 

@@ -8,7 +8,7 @@ Módulos de infraestrutura como código (IAC) para provisionamento de recursos n
 
 ### [**S3**](../storage/aws/README.md)
 
-Módulo para criar e configurar S3 buckets na AWS.
+Módulo para provisionamento de S3 buckets na AWS.
 
 - **Requisitos**: [Lista de Requisitos](../storage/aws/README.md#requisitos)
 - **Parâmetros**: [Lista de Parâmetros](../storage/aws/README.md#variáveis)

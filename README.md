@@ -10,17 +10,9 @@ Módulos de infraestrutura como código (IAC) para provisionamento de recursos n
 
 ## Módulos
 
-- [Storage](./storage/README.md): Módulo para criar e configurar storage bucket.
+- [Storage](./storage/README.md): Módulo para provisionamento de Cloud Storage buckets na GCP.
   - [AWS](./storage/aws/README.md)
   - [GCP](./storage/gcp/README.md)
-
-## Requisitos
-
-- [Terraform](https://www.terraform.io/downloads.html)
-
-- [AWS CLI](https://aws.amazon.com/pt/cli/)
-
-- [GCP SDK](https://cloud.google.com/sdk/docs/install)
 
 ## Parâmetros
 
