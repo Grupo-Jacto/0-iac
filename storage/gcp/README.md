@@ -1,4 +1,4 @@
-# Módulo Cloud Storage
+# Módulo Storage GCP
 
 [IAC](../../README.md) / [Storage](../README.md) / **[GCP](./README.md)**
 

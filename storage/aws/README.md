@@ -1,4 +1,4 @@
-# Módulo S3
+# Módulo Storage AWS
 
 [IAC](../../README.md) / [Storage](../README.md) / **[AWS](./README.md)**
 
