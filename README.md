@@ -104,7 +104,8 @@ Este projeto está licenciado sob a licença BSD 3-Clause License - consulte o a
 
 Os seguintes usuários estão contribuindo para este projeto:
 
-|                                                                                                       | Nome              | E-mail                            |
-| :---------------------------------------------------------------------------------------------------: | :---------------- | :-------------------------------- |
-| <img src="https://avatars.githubusercontent.com/u/27088472?v=4" width=50 style="border-radius: 50%">  | **Paulo Freitas** | <paulosfjunior@gmail.com>         |
-| <img src="https://avatars.githubusercontent.com/u/137942353?v=4" width=50 style="border-radius: 50%"> | **Paulo Freitas** | <paulo.freitas@grupojacto.com.br> |
+|                                                                                                       | Nome               | E-mail                             |
+| :---------------------------------------------------------------------------------------------------: | :----------------- | :--------------------------------- |
+| <img src="https://avatars.githubusercontent.com/u/27088472?v=4" width=50 style="border-radius: 50%">  | **Paulo Freitas**  | <paulosfjunior@gmail.com>          |
+| <img src="https://avatars.githubusercontent.com/u/137942353?v=4" width=50 style="border-radius: 50%"> | **Paulo Freitas**  | <paulo.freitas@grupojacto.com.br>  |
+| <img src="https://avatars.githubusercontent.com/u/169185349?v=4" width=50 style="border-radius: 50%"> | **Stenio Ignacio** | <stenio.ignacio@grupojacto.com.br> |
