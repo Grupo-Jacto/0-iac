@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "s3_bucket" {
-    bucket = "${var.project_name}-s3-bucket"
+    bucket = "s3-${var.project_name}"
     force_destroy = var.force_destroy
 
     dynamic "lifecycle_rule" {
@@ -54,7 +54,7 @@ resource "aws_s3_bucket" "s3_bucket" {
 resource "aws_iam_user" "service_user" {
   for_each = var.activate_user_creation ? { default : 1 } : {}
 
-  name = "${var.user_name}-${aws_s3_bucket.s3_bucket.bucket}"
+  name = "su-${var.user_name}-to-s3-${aws_s3_bucket.s3_bucket.bucket}"
 
   tags = concat({
     Project     = "${var.project_name}"
@@ -71,7 +71,7 @@ resource "aws_iam_access_key" "service_user_key" {
 resource "aws_iam_policy" "grant-s3-access" {
   for_each = var.activate_user_creation ? { default : 1 } : {}
 
-  name        = "access-to-${aws_s3_bucket.s3_bucket.bucket}"
+  name        = "policy-${aws_s3_bucket.s3_bucket.bucket}"
   path        = "/"
   description = "Grant access to s3 ${aws_s3_bucket.s3_bucket.bucket}"
 
