@@ -36,9 +36,9 @@ variable "aws_account_id" {
   }
 }
 
-variable "force_destroy" {
+variable "storage_force_destroy" {
   type        = bool
-  description = "Forçar destruição do seu bucket"
+  description = "Forçar destruição do seu storage"
   default     = false
   validation {
     condition     = contains([true, false], var.force_destroy)
@@ -46,7 +46,7 @@ variable "force_destroy" {
   }
 }
 
-variable "s3_lifecycle_rule" {
+variable "storage_lifecycle_rule" {
   type        = bool
   description = "Regra de ciclo de vida para modificações no seu bucket"
   default     = false
@@ -62,25 +62,25 @@ variable "transition_storage_class" {
   }
 }
 
-variable "transition_days" {
+variable "storage_objects_transition_days" {
   type        = number
   description = "Dias para transição de objetos"
   default     = 60
 }
 
-variable "expiration_days" {
+variable "storage_objects_expiration_days" {
   type        = number
   description = "Dias para expiração da transição"
   default     = 0
 }
 
-variable "allowed_headers" {
+variable "storage_allowed_headers" {
   type        = list(string)
   description = "Conjunto de cabeçalhos especificados no cabeçalho Access-Control-Request-Headers"
   default     = ["*"]
 }
 
-variable "allowed_methods" {
+variable "storage_allowed_methods" {
   type        = list(string)
   description = "Conjunto de métodos HTTP que você permite que a origem execute. Valores válidos são GET, PUT, HEAD, POST e DELETE"
   default     = ["GET", "PUT", "POST", "DELETE"]
@@ -91,25 +91,25 @@ variable "allowed_methods" {
   }
 }
 
-variable "allowed_origins" {
+variable "storage_allowed_origins" {
   type        = list(string)
   description = "Conjunto de origens que você deseja permitir que os clientes acessem o bucket"
   default     = ["*"]
 }
 
-variable "expose_headers" {
+variable "storage_expose_headers" {
   type        = list(string)
   description = "Conjunto de cabeçalhos na resposta que você deseja que os clientes possam acessar de suas aplicações"
   default     = ["*"]
 }
 
-variable "target_prefix" {
+variable "storage_target_prefix" {
   type        = string
   description = "Para especificar um prefixo de chave para objetos de log."
   default     = "log/"
 }
 
-variable "versioning_enabled" {
+variable "storage_versioning_enabled" {
   type        = bool
   description = "Ativar versionamento no bucket"
   validation {
@@ -118,7 +118,7 @@ variable "versioning_enabled" {
   }
 }
 
-variable "s3_website" {
+variable "storage_website" {
   type        = bool
   description = "Habilitar bucket como site"
   default     = false
@@ -128,19 +128,19 @@ variable "s3_website" {
   }
 }
 
-variable "index" {
+variable "storage_index" {
   type        = string
   description = "Índice do seu site"
   default     = "index.html"
 }
 
-variable "error_index" {
+variable "storage_error_index" {
   type        = string
   description = "Índice de erro do seu site"
   default     = "error.html"
 }
 
-variable "activate_user_creation" {
+variable "storage_activate_user_creation" {
   type        = bool
   description = "Ativar criação de usuário"
   default     = true
@@ -150,12 +150,12 @@ variable "activate_user_creation" {
   }
 }
 
-variable "user_name" {
+variable "iam_user_name" {
   type        = string
   description = "Nome do usuário"
 }
 
-variable "users" {
+variable "iam_users" {
   type        = list(string)
   description = "Usuários para conceder acesso ao bucket S3"
 }
