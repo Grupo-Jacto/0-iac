@@ -68,12 +68,12 @@ resource "aws_iam_user" "service_user" {
 resource "aws_iam_access_key" "service_user_key" {
   user = aws_iam_user.service_user.name
 }
-resource "aws_iam_policy" "grant-s3-access" {
+resource "aws_iam_policy" "grant-storage-access" {
   for_each = var.storage_activate_user_creation ? { default : 1 } : {}
 
   name        = "policy-${aws_s3_bucket.storage.bucket}"
   path        = "/"
-  description = "Grant access to s3 ${aws_s3_bucket.storage.bucket}"
+  description = "Grant access to storage ${aws_s3_bucket.storage.bucket}"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -101,7 +101,7 @@ resource "aws_iam_policy" "grant-s3-access" {
 
 resource "aws_iam_user_policy_attachment" "grant-users-access-s3" {
   user       = concat([aws_iam_user.service-user, [var.iam_users]]) 
-  policy_arn = aws_iam_policy.grant-s3-access.arn
+  policy_arn = aws_iam_policy.grant-storage-access.arn
 }
 
 resource "local_file" "storage-account-key-export" {
