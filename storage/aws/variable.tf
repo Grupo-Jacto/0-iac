@@ -124,7 +124,7 @@ variable "storage_website" {
   default     = false
   validation {
     condition     = contains([true, false], var.force_destroy)
-    error_message = "A s3_website precisa ser true ou false."
+    error_message = "A storage_website precisa ser true ou false."
   }
 }
 
@@ -157,7 +157,7 @@ variable "iam_user_name" {
 
 variable "iam_users" {
   type        = list(string)
-  description = "Usuários para conceder acesso ao bucket S3"
+  description = "Usuários para conceder acesso ao bucket storage"
 }
 
 variable "iam_policy_action" {

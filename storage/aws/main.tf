@@ -99,7 +99,7 @@ resource "aws_iam_policy" "grant-storage-access" {
   depends_on = [ aws_s3_bucket.s3_bucket, aws_iam_user.service_user ]
 }
 
-resource "aws_iam_user_policy_attachment" "grant-users-access-s3" {
+resource "aws_iam_user_policy_attachment" "grant-users-access-storage" {
   user       = concat([aws_iam_user.service-user, [var.iam_users]]) 
   policy_arn = aws_iam_policy.grant-storage-access.arn
 }

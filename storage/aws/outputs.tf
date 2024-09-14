@@ -18,22 +18,22 @@ output "resource_iam_policy" {
   }
 }
 output "storage_id" {
-  value = aws_s3_bucket.s3_bucket.id
+  value = aws_s3_bucket.storage.id
 }
 output "storage_region" {
-  value = aws_s3_bucket.s3_bucket.region
+  value = aws_s3_bucket.storage.region
 }
 output "storage_name" {
-  value = aws_s3_bucket.s3_bucket.bucket
+  value = aws_s3_bucket.storage.bucket
 }
 output "storage_arn" {
-  value = aws_s3_bucket.s3_bucket.arn
+  value = aws_s3_bucket.storage.arn
 }
 output "storage_object_class" {
-  value = aws_s3_bucket.s3_bucket.lifecycle_rule.transition.storage_class
+  value = aws_s3_bucket.storage.lifecycle_rule.transition.storage_class
 }
 output "storage_policy" {
-  value = aws_iam_policy.grant-s3-access.name
+  value = aws_iam_policy.grant-storage-access.name
 }
 output "storage_service_user_name" {
   value = aws_iam_user.service_user.name
@@ -45,8 +45,8 @@ output "iam_storage_service_user_key" {
   value = aws_iam_access_key.service_user_key[count.index]
 }
 output "count_users_atached_on_storage_policy" {
-  value = aws_iam_user_policy_attachment.grant-users-access-s3.user[count.index]
+  value = aws_iam_user_policy_attachment.grant-users-access-storage.user[count.index]
 }
 output "users_with_permission_on_this_storage" {
-  value = aws_iam_user_policy_attachment.grant-users-access-s3.user
+  value = aws_iam_user_policy_attachment.grant-users-access-storage.user
 }
