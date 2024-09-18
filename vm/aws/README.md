@@ -19,7 +19,7 @@ Módulo de infraestrutura como código (IAC) para provisionamento de Vm's Ec2 na
 module "vm_aws" {
   source = "github.com/paulosfjunior/iac/vm/aws?ref=v1.0.0"
 
-  name = "single-instance"
+  vm_name = <YOUR_INSTANCE_NAME>
 }
 
 ## Inputs
