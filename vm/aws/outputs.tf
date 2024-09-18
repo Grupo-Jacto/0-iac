@@ -38,7 +38,7 @@ output "vm_instance_type" {
   value = aws_instance.vm-instance.instance_type
 }
 
-output "vm_ami_type" {
+output "vm_ami_name" {
   value = data.aws_ami.choose_ami.filter.name
 }
 

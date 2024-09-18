@@ -25,10 +25,10 @@ variable "filter_ami_path" {
   description = "Path for ami installation"
   default = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
 }
-variable "ami" {
+variable "vm_name" {
   type = string
-  description = "AMI for ec2 instance"
-  default = ""
+  description = "Nome da vm"
+  default = "my-vm"
 }
 variable "instance_type" {
   type = string
@@ -46,6 +46,11 @@ variable "availability_zones" {
 variable "subnet_id" {
   type = string
   description = "ID of subnet to launch ec2"
+}
+variable "vm_count" {
+  type = number
+  description = "Quantidade de vms que precisa subir"
+  default = 1
 }
 variable "key_name" {
   type = string
