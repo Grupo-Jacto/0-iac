@@ -7,15 +7,16 @@ data "aws_ami" "choose_ami" {
   }
 }
 
-resource "aws_instance" "ec2-instance" {
+resource "aws_instance" "vm-instance" {
   ami = var.ami 
-  key_name = aws_key_pair.ec2-instance-key.key_name ? [1] : []
+  key_name = aws_key_pair.vm-instance-key.key_name ? [1] : []
   instance_type = var.instance_type ? [1] : []
   associate_public_ip_address = var.associate_public_ip ? [1] : []
   availability_zone = var.availability_zones ? [1] : []
   subnet_id = var.subnet_id ? [1] : []
 
   tags = concat({
+    Name = "vm-${var.project_name}"
     Project     = "${var.project_name}"
     Environment = "${var.project_env}"
     iac         = "Terraform"
@@ -24,7 +25,7 @@ resource "aws_instance" "ec2-instance" {
     var.project_tags)
 }
 
-resource "aws_key_pair" "ec2-instance-key" {
+resource "aws_key_pair" "vm-instance-key" {
   key_name   = var.key_name
   public_key = var.public_key
 
