@@ -1,4 +1,4 @@
-output "resource_storage_name" {
+output "resource_bucket_storage" {
   value = {
     id = aws_s3_bucket.storage.id
     name = aws_s3_bucket.storage.name
@@ -8,7 +8,7 @@ output "resource_storage_name" {
   }
 }
 
-output "resource_iam_policy" {
+output "resource_bucket_storage_iam" {
   value = {
     name = aws_iam_policy.name
     policy_action = aws_iam_policy.policy.Statement.Action
