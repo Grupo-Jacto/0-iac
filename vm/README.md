@@ -2,7 +2,7 @@
 
 [IAC](../README.md) / **[VM](#módulo-vm)**
 
-Módulo de infraestrutura como código (IAC) para provisionamento de vm para AWS e GCP.
+Módulo de infraestrutura como código (IAC) para provisionamento de VM para AWS e GCP.
 
 ## Providers disponíveis para o módulo
 
