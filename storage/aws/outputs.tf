@@ -1,14 +1,14 @@
-output "resource_bucket_name" {
+output "resource_bucket_storage" {
   value = {
-    id = aws_s3_bucket.s3_bucket.id
-    name = aws_s3_bucket.s3_bucket.name
-    url = aws_s3_bucket.s3_bucket.url
-    storage_class = aws_s3_bucket.bucket.lifecycle_rule.storage_class
-    tags = aws_s3_bucket.s3_bucket.tags
+    id = aws_s3_bucket.storage.id
+    name = aws_s3_bucket.storage.name
+    url = aws_s3_bucket.storage.url
+    storage_class = aws_s3_bucket.storage.lifecycle_rule.storage_class
+    tags = aws_s3_bucket.storage.tags
   }
 }
 
-output "resource_iam_policy" {
+output "resource_bucket_storage_iam" {
   value = {
     name = aws_iam_policy.name
     policy_action = aws_iam_policy.policy.Statement.Action
@@ -17,36 +17,36 @@ output "resource_iam_policy" {
     users_atached = aws_iam_user_policy_attachment.user
   }
 }
-output "s3_id" {
-  value = aws_s3_bucket.s3_bucket.id
+output "storage_id" {
+  value = aws_s3_bucket.storage.id
 }
-output "s3_region" {
-  value = aws_s3_bucket.s3_bucket.region
+output "storage_region" {
+  value = aws_s3_bucket.storage.region
 }
-output "s3_name" {
-  value = aws_s3_bucket.s3_bucket.bucket
+output "storage_name" {
+  value = aws_s3_bucket.storage.bucket
 }
-output "s3_arn" {
-  value = aws_s3_bucket.s3_bucket.arn
+output "storage_arn" {
+  value = aws_s3_bucket.storage.arn
 }
-output "s3_storage_class" {
-  value = aws_s3_bucket.s3_bucket.lifecycle_rule.transition.storage_class
+output "storage_object_class" {
+  value = aws_s3_bucket.storage.lifecycle_rule.transition.storage_class
 }
-output "s3_policy" {
-  value = aws_iam_policy.grant-s3-access.name
+output "storage_policy" {
+  value = aws_iam_policy.grant-storage-access.name
 }
-output "s3_service_user_name" {
+output "storage_service_user_name" {
   value = aws_iam_user.service_user.name
 }
-output "s3_service_user_arn" {
+output "iam_storage_service_user_arn" {
   value = aws_iam_user.service_user.arn
 }
-output "s3_service_user_key" {
+output "iam_storage_service_user_key" {
   value = aws_iam_access_key.service_user_key[count.index]
 }
-output "count_users_atached_on_s3_policy" {
-  value = aws_iam_user_policy_attachment.grant-users-access-s3.user[count.index]
+output "count_users_atached_on_storage_policy" {
+  value = aws_iam_user_policy_attachment.grant-users-access-storage.user[count.index]
 }
-output "users_with_permission_on_this_s3" {
-  value = aws_iam_user_policy_attachment.grant-users-access-s3.user
+output "users_with_permission_on_this_storage" {
+  value = aws_iam_user_policy_attachment.grant-users-access-storage.user
 }
