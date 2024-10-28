@@ -1,3 +1,36 @@
+# Cria as variáveis do locals
+locals {
+  workspace_map = {
+    dev             = "dev"
+    development     = "dev"
+    desenvolvimento = "dev"
+    hml             = "hml"
+    stg             = "hml"
+    staging         = "hml"
+    homologacao     = "hml"
+    prd             = "prd"
+    production      = "prd"
+    producao        = "prd"
+    sandbox         = "sbx"
+  }
+
+  env               = var.project_env != null ? var.project_env : lookup(local.workspace_map, terraform.workspace, "dev")
+  location          = var.location != null ? var.location : (var.region != null ? var.region : "US")
+  terminal_class    = var.autoclass_terminal != null ? var.autoclass_terminal : "NEARLINE"
+  public_prevention = var.public_prevention && !var.iam_public && !var.website
+  name              = "sb.${local.env}.${var.name}"
+
+  iam_all_users    = ["allUsers"]
+  iam_role_viewer  = "roles/storage.objectViewer"
+  iam_role_creator = "roles/storage.objectCreator"
+  iam_role_admin   = "roles/storage.objectAdmin"
+  iam_members = {
+    "${local.iam_role_viewer}"  = var.iam_member_viewer,
+    "${local.iam_role_creator}" = var.iam_member_creator,
+    "${local.iam_role_admin}"   = var.iam_member_admin
+  }
+}
+
 # Referenciar aos dados do Projeto
 data "google_project" "project" {
   project_id = var.project_id
@@ -5,36 +38,52 @@ data "google_project" "project" {
 
 # Cria um bucket no Google Cloud Storage
 resource "google_storage_bucket" "bucket-storage" {
-  name                        = "sb-${var.project_env}-${var.project_name_base}-${var.storage_name}"
-  location                    = var.project_region
-  storage_class               = var.storage_class
-  uniform_bucket_level_access = var.storage_uniform_access
-  force_destroy               = var.storage_force_destroy
+  name     = local.name
+  location = local.location
 
-  cors {
-    origin          = var.storage_cors_origin
-    method          = var.storage_cors_method
-    response_header = var.storage_cors_header
-    max_age_seconds = var.storage_cors_age
+  public_access_prevention    = local.public_prevention
+  uniform_bucket_level_access = var.uniform_access
+  force_destroy               = var.force_destroy
+  storage_class               = var.class
+
+  dynamic "autoclass" {
+    for_each = var.autoclass ? { default = 1 } : {}
+
+    content {
+      enabled                = var.autoclass
+      terminal_storage_class = local.terminal_class
+    }
+  }
+
+  dynamic "cors" {
+    for_each = length(var.cors_origin) > 0 ? { default = 1 } : {}
+
+    content {
+      origin          = var.cors_origin
+      method          = var.cors_method
+      response_header = var.cors_header
+      max_age_seconds = var.cors_age
+    }
   }
 
   dynamic "website" {
-    for_each = var.storage_website ? [1] : []
+    for_each = var.website ? { default = 1 } : {}
 
     content {
-      main_page_suffix = var.storage_website_main
-      not_found_page   = var.storage_website_error
+      main_page_suffix = var.website_main
+      not_found_page   = var.website_error
     }
   }
 
   labels = merge(
     {
       project     = "${var.project_id}",
-      environment = "${var.project_env}",
+      environment = "${local.env}",
+      service     = "storage-bucket",
       iac         = "terraform",
-      service     = "storage-bucket"
+      public      = "${!local.public_prevention}"
     },
-    var.project_labels
+    var.labels
   )
 
   depends_on = [data.google_project.project]
@@ -42,11 +91,25 @@ resource "google_storage_bucket" "bucket-storage" {
 
 # Define uma regra de acesso público de leitura para o bucket
 resource "google_storage_bucket_iam_binding" "bucket-storage-iam" {
-  for_each = var.storage_iam_public ? { default : 1 } : {}
+  for_each = var.iam_public ? { default : 1 } : {}
 
-  bucket  = google_storage_bucket.bucket-storage.name
-  role    = var.storage_iam_role
-  members = var.storage_iam_members
+  bucket  = local.name
+  role    = local.iam_role_viewer
+  members = local.iam_all_users
+
+  depends_on = [
+    data.google_project.project,
+    google_storage_bucket.bucket-storage
+  ]
+}
+
+# Define uma regra de acesso de ler, criar e administrar a membro para o bucket
+resource "google_storage_bucket_iam_binding" "bucket-storage-member" {
+  for_each = local.iam_members
+
+  bucket  = local.name
+  role    = each.key
+  members = each.value
 
   depends_on = [
     data.google_project.project,
@@ -113,7 +176,7 @@ resource "local_file" "storage-account-key-export" {
   for_each = var.storage_account_create ? { default : 1 } : {}
 
   content  = base64decode(google_service_account_key.storage-account-key.private_key)
-  filename = "${path.root}/terraform.${var.project_env}.storage.account.key.json"
+  filename = "${path.root}/terraform.${local.env}.storage.account.key.json"
 
   depends_on = [
     data.google_project.project,
