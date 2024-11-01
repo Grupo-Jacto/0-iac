@@ -1,57 +1,77 @@
-output "resource_vm" {
-  value = {
-    id = aws_instance.vm-instance.id
-    name = aws_instance.vm-instance.name
-    url = aws_instance.vm-instance.url
-    instance_type = aws_instance.vm-instance.instance_type
-    tags = aws_instance.vm-instance.tags
-  }
+output "vm_info" {
+  value = [for vm in aws_instance.vm-instance : {
+    id            = vm.id
+    region        = vm.availability_zone
+    name          = vm.tags["Name"]
+    arn           = vm.arn
+    instance_type = vm.instance_type
+    ami_name      = data.aws_ami.choose_ami.name # Corrigido: Usando o nome da AMI
+    private_ip    = vm.private_ip
+    public_ip     = vm.public_ip
+  }]
 }
 
 output "resource_vm_key_pair" {
   value = {
-    id = aws_key_pair.vm-instance-key.id
-    name = aws_key_pair.vm-instance-key.name
-    url = aws_key_pair.vm-instance-key.url
+    id       = aws_key_pair.vm-instance-key.id
+    name     = aws_key_pair.vm-instance-key.key_name
+    arn      = aws_key_pair.vm-instance-key.arn
     key_type = aws_key_pair.vm-instance-key.key_type
-    tags = aws_key_pair.vm-instance-key.tags
   }
+  description = "Informacoes da keypair usada na(s) vm('s)"
 }
 
 output "vm_id" {
-  value = aws_instance.vm-instance.id
+  value = [for vm in aws_instance.vm-instance : {
+    id = vm.id
+  }]
 }
 
 output "vm_region" {
-  value = aws_instance.vm-instance.availability_zone
+  value = [for vm in aws_instance.vm-instance : {
+    zone = vm.availability_zone
+  }]
 }
 
 output "vm_name" {
-  value = var.project_tags["Name"]
+  # value = var.project_tags["Name"]
+  value = [for vm in aws_instance.vm-instance : {
+    name = vm.tags["Name"]
+  }]
 }
 
 output "vm_arn" {
-  value = aws_instance.vm-instance.arn
+  value = [for vm in aws_instance.vm-instance : {
+    arn = vm.arn
+  }]
 }
 
 output "vm_instance_type" {
-  value = aws_instance.vm-instance.instance_type
+  value = [for vm in aws_instance.vm-instance : {
+    instance_type = vm.instance_type
+  }]
 }
 
 output "vm_ami_name" {
-  value = data.aws_ami.choose_ami.filter.name
+  value = var.filter_ami_name
 }
 
 output "vm_private_ip" {
-  value = aws_instance.vm-instance.private_ip
+  value = [for vm in aws_instance.vm-instance : {
+    private_ip = vm.private_ip
+  }]
 }
 
 output "vm_public_ip" {
-  value = aws_instance.vm-instance.public_ip
+  value = [for vm in aws_instance.vm-instance : {
+    public_ip = vm.public_ip
+  }]
 }
 
 output "vm_subnet_attached" {
-  value = aws_instance.vm-instance.subnet_id
+  value = [for vm in aws_instance.vm-instance : {
+    subnets_attached = vm.subnet_id
+  }]
 }
 
 output "vm_keypair_id" {
