@@ -17,7 +17,7 @@ Módulo de infraestrutura como código (IAC) para provisionamento de Load Balanc
 ## Utilização
 
 ```hcl
-module "db_aws" {
+module "lb_aws" {
   source = "github.com/Grupo-Jacto/iac/lb/aws?ref=v1.0.0"
 
   aws_account_id = "<ACCOUNT_ID>"

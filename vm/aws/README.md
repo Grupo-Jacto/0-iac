@@ -23,6 +23,7 @@ module "vm_aws" {
   aws_account_id = "<ACCOUNT_ID>"
   project_name = "<PROJECT_NAME>"
   project_env = "<PROJECT_ENV>"
+  subnet_id = "<SUBNET_ID>"
 }
 ```
 

@@ -1,6 +1,6 @@
 # Módulo DB
 
-[IAC](../README.md) / **[db](#módulo-db)**
+[IAC](../README.md) / **[DB](#módulo-db)**
 
 Módulo de infraestrutura como código (IAC) para provisionamento de DB para AWS e GCP.
 

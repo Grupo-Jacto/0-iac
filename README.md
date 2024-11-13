@@ -10,9 +10,21 @@ Módulos de infraestrutura como código (IAC) para provisionamento de recursos n
 
 ## Módulos
 
-- [Storage](./storage/README.md): Módulo para provisionamento de Cloud Storage buckets na GCP.
+- [Storage](./storage/README.md): Módulo para provisionamento de S3 buckets na AWS ou Cloud Storage na GCP.
   - [AWS](./storage/aws/README.md)
   - [GCP](./storage/gcp/README.md)
+
+- [DB](./db/README.md): Módulo para provisionamento de RDS e Aurora RDS na AWS ou Cloud SQL e AlooyDB na GCP.
+  - [AWS](./db/aws/README.md)
+  - [GCP](./db/gcp/README.md)
+
+- [Load_Balancer](./lb/README.md): Módulo para provisionamento de Load Balancer na AWS e GCP.
+  - [AWS](./lb/aws/README.md)
+  - [GCP](./lb/gcp/README.md)
+
+- [EC2](./vm/README.md): Módulo para provisionamento de EC2 na AWS ou Compute Engine na GCP.
+  - [AWS](./vm/aws/README.md)
+  - [GCP](./vm/gcp/README.md)
 
 ## Parâmetros
 
