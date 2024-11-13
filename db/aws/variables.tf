@@ -3,29 +3,32 @@ variable "db_resource_type" {
   type        = string
   description = "Tipo de recurso a ser criado ('db' -> para bancos Mysql, Postgresql, Oracle ou Sql Server | 'db_cluster' para bancos Aurora MySql e Aurora Postgresql)"
   default     = "db"
+  validation {
+    condition = can(regex("^(db|db_cluster)$", var.db_resource_type))
+    error_message = "Tipo de recurso a ser criado ('db' -> para bancos Mysql, Postgresql, Oracle ou Sql Server | 'db_cluster' -> para bancos Aurora MySql e Aurora Postgresql)"
+  }
 }
 ############################################################################################################################
 #Project
 variable "project_name" {
   type        = string
   description = "Nome do seu projeto"
-  default     = "my-project"
+}
+variable "aws_account_id" {
+  type        = number
+  description = "ID da sua conta AWS"
+  validation {
+    condition     = var.aws_account_id > 12
+    error_message = "ID da conta inválido"
+  }
 }
 
 variable "project_env" {
   type        = string
-  description = "Ambiente do seu projeto. Ex: prd,prod,dev,hml,homol"
-  default     = "prd"
+  description = "Abreviação do ambiente. Valores suportados: `sbx` para sandbox, `dev` para desenvolvimento, `hml` para homologação e `prd` para produção."
   validation {
-    condition     = can(regex("^(?i)(dev|prd|hml)$", var.project_env))
-    error_message = "O valor da variável project_env deve ser 'dev', 'prd' ou 'hml' (sem case sensitive)."
-  }
-}
-locals {
-  regions = {
-    "us" = "us-east-1",
-    "eu" = "eu-west-1",
-    "ap" = "ap-southeast-1"
+    condition     = var.project_env == null || can(lower(regex("^(sbx|dev|prd|prod|hml|homol)$", var.project_env)))
+    error_message = "O project_env deve ser nulo ou um dos seguintes valores: 'sbx', 'dev', 'hml' ou 'prd'."
   }
 }
 variable "project_region" {
@@ -34,6 +37,11 @@ variable "project_region" {
   default     = "us-east-1"
   validation {
     condition     = var.project_region == null || length(var.project_region) > 5 || can(regex(!startswith("^(?i)(us|eu|ap)$", var.project_region)))
+    error_message = "Região inválida. Regioes aceitas: 'us-east-[1-2]', 'us-west-[1-2], 'eu-west-[1-2]','ap-southeast-[1-2]'"
+  }
+
+  validation {
+    condition = var.project_region == "us" ? "us-east-1" : null || var.project_region == "eu" ? "eu-west-1" : null || var.project_region == "ap" ? "ap-southeast-1" : null
     error_message = "Região inválida. Regioes aceitas: 'us-east-[1-2]', 'us-west-[1-2], 'eu-west-[1-2]','ap-southeast-[1-2]'"
   }
 }

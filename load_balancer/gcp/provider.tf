@@ -1,6 +1,6 @@
 terraform {
   required_version = ">= 0.13"
-
+  
   required_providers {
 
     google = {
@@ -16,6 +16,6 @@ provider "google" {
     Project     = "${var.project_id}"
     Environment = "${var.project_env}"
     iac         = "terraform"
-    service     = var.choose_db == "db" ? "Cloud SQL" : "AlloyDB"
+    service     = "ec2"
   }
 }
