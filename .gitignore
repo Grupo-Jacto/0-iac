@@ -39,3 +39,6 @@ terraform.*.json
 
 #SHA256
 *.sha256
+
+#trash
+*.exe
