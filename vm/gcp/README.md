@@ -18,7 +18,7 @@ Módulo de infraestrutura como código (IAC) para provisionamento de Compute Eng
 ## Utilização
 
 module "vm_aws" {
-  source = "github.com/paulosfjunior/iac/vm/gcp?ref=v1.0.0"
+  source = "github.com/Grupo-Jacto/iac/vm/gcp?ref=v1.0.0"
 }
 
 ## Resources

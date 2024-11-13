@@ -17,7 +17,7 @@ Módulo de infraestrutura como código (IAC) para provisionamento de RDS na AWS.
 ## Utilização
 
 module "storage_aws" {
-  source = "github.com/paulosfjunior/iac/db/aws?ref=v1.0.0"
+  source = "github.com/Grupo-Jacto/iac/db/aws?ref=v1.0.0"
 }
 ## Resources
 

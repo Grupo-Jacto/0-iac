@@ -18,7 +18,7 @@ Módulo de infraestrutura como código (IAC) para provisionamento de Cloud Stora
 
 ```hcl
 module "storage_gcp" {
-  source = "github.com/paulosfjunior/iac/storage/gcp?ref=v1.0.0"
+  source = "github.com/Grupo-Jacto/iac/storage/gcp?ref=v1.0.0"
 
   project_id = "<PROJECT_ID>"
   name       = "<BUCKET_NAME>"

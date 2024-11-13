@@ -17,7 +17,7 @@ Módulo para provisionamento de SQL e AlloyDB na GCP.
 
 ```hcl
   module "db_gcp" {
-    source = "github.com/paulosfjunior/iac/db/gcp?ref=v1.0.0"
+    source = "github.com/Grupo-Jacto/iac/db/gcp?ref=v1.0.0"
     // ... parâmetros
   }
 ```

@@ -17,7 +17,7 @@ Módulo de infraestrutura como código (IAC) para provisionamento de S3 buckets 
 ## Utilização
 
 module "storage_aws" {
-  source = "github.com/paulosfjunior/iac/storage/aws?ref=v1.0.0"
+  source = "github.com/Grupo-Jacto/iac/storage/aws?ref=v1.0.0"
 
   bucket = <YOUR_BUCKET_NAME>
 }
