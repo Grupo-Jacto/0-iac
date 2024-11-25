@@ -1,7 +1,5 @@
 resource "aws_s3_bucket" "storage" {
-  bucket        = "storage-${var.project_name}"
-  force_destroy = var.storage_force_destroy
-
+  bucket = "storage-bucket-${var.project_name}"
   dynamic "lifecycle_rule" {
     for_each = var.storage_lifecycle_rule ? [1] : []
 
@@ -17,13 +15,6 @@ resource "aws_s3_bucket" "storage" {
     }
   }
 
-  cors_rule {
-    allowed_headers = var.storage_allowed_headers
-    allowed_methods = var.storage_allowed_methods
-    allowed_origins = var.storage_allowed_origins
-    expose_headers  = var.storage_expose_headers
-  }
-
   dynamic "website" {
     for_each = var.storage_website ? [1] : []
 
@@ -31,10 +22,6 @@ resource "aws_s3_bucket" "storage" {
       index_document = length(var.storage_index) > 0 ? "${var.storage_index}.html" : var.storage_index
       error_document = var.storage_error_index
     }
-  }
-
-  versioning {
-    enabled = var.storage_versioning_enabled
   }
 
   tags = {
@@ -46,9 +33,9 @@ resource "aws_s3_bucket" "storage" {
 }
 
 resource "aws_iam_user" "service-user" {
-  for_each = var.storage_activate_user_creation ? { default : 1 } : {}
+  count = var.user_count
 
-  name = "su-${var.iam_user_name}-to-s3-${aws_s3_bucket.storage.bucket}"
+  name = "${var.iam_user_name}-to-s3-${aws_s3_bucket.storage.bucket}-${count.index + 1}"
 
   tags = {
     Project     = "${var.project_name}"
@@ -59,11 +46,12 @@ resource "aws_iam_user" "service-user" {
 }
 
 resource "aws_iam_access_key" "service-user-key" {
-  for_each = aws_iam_user.service-user
-  user     = each.value.name
+  count = var.user_count
+
+  user = aws_iam_user.service-user[0].name
 }
 resource "aws_iam_policy" "grant-storage-access" {
-  for_each = var.storage_activate_user_creation ? { default : 1 } : {}
+  count = var.user_count
 
   name        = "policy-${aws_s3_bucket.storage.bucket}"
   path        = "/"
@@ -73,11 +61,9 @@ resource "aws_iam_policy" "grant-storage-access" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action = [
-          var.iam_policy_action
-        ]
-        Effect   = var.iam_policy_effect
-        Resource = "arn:aws:s3:::${var.aws_account_id}:${aws_s3_bucket.storage.bucket}/*"
+        Effect : "Allow",
+        Action : "s3:*",
+        Resource = "arn:aws:s3:::\"${aws_s3_bucket.storage.bucket}\"/*"
       },
     ]
   })
@@ -93,17 +79,24 @@ resource "aws_iam_policy" "grant-storage-access" {
 }
 
 resource "aws_iam_user_policy_attachment" "grant-users-access-storage" {
-  for_each = aws_iam_user.service-user
+  count = var.user_count >= 1 ? 1 : 0
 
-  user       = each.value.name
-  policy_arn = each.value.arn
+  user       = aws_iam_user.service-user[count.index].name
+  policy_arn = aws_iam_policy.grant-storage-access[count.index].arn
 }
 
-resource "local_file" "storage-account-key-export" {
-  for_each = aws_iam_access_key.service-user-key
+resource "aws_secretsmanager_secret" "service_user_secret" {
+  count = var.user_count
 
-  content  = base64decode(aws_iam_access_key.service-user-key[each.key].encrypted_secret)
-  filename = "${path.root}/terraform.${var.project_env}.s3.service_account.key.json"
+  name = "service-user-secret-${count.index + 1}"
+}
 
-  depends_on = [aws_iam_access_key.service-user-key]
+resource "aws_secretsmanager_secret_version" "service_user_secret_version" {
+  count = var.user_count
+
+  secret_id = aws_secretsmanager_secret.service_user_secret[count.index].id
+  secret_string = jsonencode({
+    access_key_id     = aws_iam_access_key.service-user-key[count.index].id,
+    secret_access_key = aws_iam_access_key.service-user-key[count.index].secret
+  })
 }

@@ -1,12 +1,14 @@
 variable "project_name" {
   type        = string
+  default     = "projeto-test"
   description = "Nome do seu projeto"
 }
 variable "project_env" {
   type        = string
+  default     = "dev"
   description = "Abreviação do ambiente. Valores suportados: `sbx` para sandbox, `dev` para desenvolvimento, `hml` para homologação e `prd` para produção."
   validation {
-    condition     = var.project_env == null || can(lower(regex("^(sbx|dev|prd|prod|hml|homol)$", var.project_env)))
+    condition     = var.project_env == null || contains(["dev", "prd", "hml", "prod", "test"], var.project_env)
     error_message = "O project_env deve ser nulo ou um dos seguintes valores: 'sbx', 'dev', 'hml' ou 'prd'."
   }
 }
@@ -14,33 +16,22 @@ variable "project_region" {
   type        = string
   description = "Região do seu projeto"
   default     = "us-east-1"
-  validation {
-    condition     = var.project_region == null || length(var.project_region) > 5 || can(regex(!startswith("^(?i)(us|eu|ap)$", var.project_region)))
-    error_message = "Região inválida. Regioes aceitas: 'us-east-[1-2]', 'us-west-[1-2], 'eu-west-[1-2]','ap-southeast-[1-2]'"
-  }
 
   validation {
-    condition = var.project_region == "us" ? "us-east-1" : null || var.project_region == "eu" ? "eu-west-1" : null || var.project_region == "ap" ? "ap-southeast-1" : null
+    condition = (
+      can(regex("^(?i)(us-east-[1-2]|us-west-[1-2]|eu-west-[1-2]|ap-southeast-[1-2])$", var.project_region))
+    )
     error_message = "Região inválida. Regioes aceitas: 'us-east-[1-2]', 'us-west-[1-2], 'eu-west-[1-2]','ap-southeast-[1-2]'"
   }
 }
 
 variable "aws_account_id" {
-  type        = number
+  type        = string
+  default     = "767397849711"
   description = "ID da sua conta AWS"
   validation {
     condition     = var.aws_account_id > 12
     error_message = "ID da conta inválido"
-  }
-}
-
-variable "storage_force_destroy" {
-  type        = bool
-  description = "Forçar destruição do seu storage"
-  default     = false
-  validation {
-    condition     = var.storage_force_destroy == null || contains([true, false], var.storage_force_destroy)
-    error_message = "A force_destroy precisa ser true ou false."
   }
 }
 
@@ -84,57 +75,6 @@ variable "storage_objects_expiration_days" {
   }
 }
 
-variable "storage_allowed_headers" {
-  type        = list(string)
-  description = "Conjunto de cabeçalhos especificados no cabeçalho Access-Control-Request-Headers"
-  default     = ["GET"]
-  validation {
-    condition = var.storage_allowed_headers == null || alltrue([for header in var.storage_allowed_headers : contains(["GET", "PUT", "POST", "DELETE", "HEAD", "*"], header)])
-    # condition     = var.storage_allowed_headers == null || !strcontains([var.storage_allowed_headers], ["*"]) && !strcontains(var.storage_allowed_headers, "GET") && !strcontains(var.storage_allowed_headers, "PUT") && !strcontains(var.storage_allowed_headers, "POST") && !strcontains(var.storage_allowed_headers, "DELETE") && !strcontains(var.storage_allowed_headers, "HEAD")
-    error_message = "Insira os parametros que precisam ser liberados dentro dos disponiveis:GET, PUT, POST, DELETE, HEAD ou * para todos os anteriores"
-  }
-}
-
-variable "storage_allowed_methods" {
-  type        = list(string)
-  description = "Conjunto de métodos HTTP que você permite que a origem execute. Valores válidos são GET, PUT, HEAD, POST e DELETE"
-  default     = ["*"]
-  validation {
-    condition     = var.storage_allowed_methods == null || alltrue([for header in var.storage_allowed_methods : contains(["GET", "PUT", "POST", "DELETE", "HEAD", "*"], header)])
-    error_message = "Os valores precisam ser 'GET','PUT'. 'POST', 'DELETE'"
-  }
-}
-
-variable "storage_allowed_origins" {
-  type        = list(string)
-  description = "Conjunto de origens que você deseja permitir que os clientes acessem o bucket"
-  default     = ["*"]
-  validation {
-    condition     = var.storage_allowed_origins == null || alltrue([for origin in var.storage_allowed_origins : can(regex("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}/\\d{1,2}$", origin)) || origin == "*"])
-    error_message = "Passe um range de ip valido"
-  }
-}
-
-variable "storage_expose_headers" {
-  type        = list(string)
-  description = "Conjunto de cabeçalhos na resposta que você deseja que os clientes possam acessar de suas aplicações"
-  default     = ["*"]
-  validation {
-    condition     = var.storage_expose_headers == null || length(var.storage_expose_headers) > 0
-    error_message = "O header não pode ser nulo"
-  }
-}
-
-variable "storage_versioning_enabled" {
-  type        = bool
-  description = "Ativar versionamento dos objetos no bucket"
-  default     = false
-  validation {
-    condition     = var.storage_versioning_enabled == null || contains([true, false], var.storage_versioning_enabled)
-    error_message = "O valor do parametro precisa ser true ou false."
-  }
-}
-
 variable "storage_website" {
   type        = bool
   description = "Habilitar bucket como site"
@@ -165,13 +105,13 @@ variable "storage_error_index" {
   }
 }
 
-variable "storage_activate_user_creation" {
-  type        = bool
-  description = "Ativar criação de usuário"
-  default     = true
+variable "user_count" {
+  type        = number
+  description = "Ativar criação de usuário, por padrão é criado 1 usuario"
+  default     = 1
   validation {
-    condition     = var.storage_activate_user_creation == null || contains([true, false], var.storage_activate_user_creation)
-    error_message = "O valor do parametro para criacao do usuario precisa ser true ou false."
+    condition     = var.user_count >= 1 || can(regexall("^[0-9]+$", var.user_count))
+    error_message = "O valor do parametro para criacao do usuario precisa ser 1 ou maior."
   }
 }
 
@@ -196,11 +136,11 @@ variable "iam_users" {
 }
 
 variable "iam_policy_action" {
-  type        = list(string)
+  type        = string
   description = "Ação na política"
-  default     = ["s3:*"]
+  default     = "s3:*"
   validation {
-    condition     = var.iam_policy_action == null || alltrue([for action in var.iam_policy_action : can(regex("^s3:[a-zA-Z]+", action)) || can(regex("^[a-zA-Z]+", action))])
+    condition     = var.iam_policy_action == null || can(regex("^s3:([a-zA-Z]+|\\*)$", var.iam_policy_action))
     error_message = "A ação na politica precisa seguir o seguinte padrão: 's3:<action>' ou '<action>' Ex: 's3:GetObject'"
   }
 }

@@ -3,7 +3,7 @@ output "resource_bucket_storage" {
     id            = aws_s3_bucket.storage.id
     name          = aws_s3_bucket.storage.bucket
     url           = "https://${aws_s3_bucket.storage.bucket}.s3.amazonaws.com"
-    storage_class = flatten([for transition in aws_s3_bucket.storage.lifecycle_rule[0].transition : [transition.storage_class]])[0]
+    storage_class = flatten([for transition in aws_s3_bucket.storage.lifecycle_rule : [transition.storage_class]])
     tags          = aws_s3_bucket.storage.tags
   }
   description = "Dados do Storage Bucket"
@@ -39,10 +39,10 @@ output "storage_arn" {
   value       = aws_s3_bucket.storage.arn
   description = "Arn do Storage bucket"
 }
-output "storage_object_class" {
-  value       = flatten([for transition in aws_s3_bucket.storage.lifecycle_rule[0].transition : [transition.storage_class]])[0]
-  description = "Tipo de classe para objetos do Storage Bucket"
-}
+# output "storage_object_class" {
+#   value       = flatten([for transition in aws_s3_bucket.storage.lifecycle_rule : [transition.storage_class]])[0]
+#   description = "Tipo de classe para objetos do Storage Bucket"
+# }
 output "storage_policy" {
   value       = [for name in aws_iam_policy.grant-storage-access : name.name]
   description = "Nome da politica de acesso ao Storage Bucket"
