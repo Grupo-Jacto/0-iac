@@ -14,11 +14,11 @@ locals {
     sandbox         = "sbx"
   }
 
-  env               = var.project_env != null ? var.project_env : lookup(local.workspace_map, terraform.workspace, "dev")
-  location          = var.location != null ? var.location : (var.region != null ? var.region : "US")
-  terminal_class    = var.autoclass_terminal != null ? var.autoclass_terminal : "NEARLINE"
-  public_prevention = var.public_prevention && !var.iam_public && !var.website
-  name              = "sb.${local.env}.${var.name}"
+  env                      = var.project_env != null ? var.project_env : lookup(local.workspace_map, terraform.workspace, "dev")
+  location                 = var.location != null ? var.location : (var.region != null ? var.region : "US")
+  terminal_class           = var.autoclass_terminal != null ? var.autoclass_terminal : "NEARLINE"
+  public_access_prevention = var.public_prevention == "inherited" ? true : false
+  name                     = "sb-${local.env}-${var.name}"
 
   iam_all_users    = ["allUsers"]
   iam_role_viewer  = "roles/storage.objectViewer"
@@ -31,17 +31,12 @@ locals {
   }
 }
 
-# Referenciar aos dados do Projeto
-data "google_project" "project" {
-  project_id = var.project_id
-}
-
 # Cria um bucket no Google Cloud Storage
 resource "google_storage_bucket" "bucket-storage" {
-  name     = local.name
-  location = local.location
-
-  public_access_prevention    = local.public_prevention
+  name                        = local.name
+  location                    = local.location
+  project                     = var.project_id
+  public_access_prevention    = var.public_prevention
   uniform_bucket_level_access = var.uniform_access
   force_destroy               = var.force_destroy
   storage_class               = var.class
@@ -81,12 +76,10 @@ resource "google_storage_bucket" "bucket-storage" {
       environment = "${local.env}",
       service     = "storage-bucket",
       iac         = "terraform",
-      public      = "${!local.public_prevention}"
+      public      = "${var.public_prevention == "enforced" ? true : false}"
     },
     var.labels
   )
-
-  depends_on = [data.google_project.project]
 }
 
 # Define uma regra de acesso público de leitura para o bucket
@@ -98,7 +91,6 @@ resource "google_storage_bucket_iam_binding" "bucket-storage-iam" {
   members = local.iam_all_users
 
   depends_on = [
-    data.google_project.project,
     google_storage_bucket.bucket-storage
   ]
 }
@@ -112,7 +104,6 @@ resource "google_storage_bucket_iam_binding" "bucket-storage-member" {
   members = each.value
 
   depends_on = [
-    data.google_project.project,
     google_storage_bucket.bucket-storage
   ]
 }
@@ -121,12 +112,11 @@ resource "google_storage_bucket_iam_binding" "bucket-storage-member" {
 resource "google_service_account" "storage-account" {
   for_each = var.storage_account_create ? { default : 1 } : {}
 
-  account_id   = "storage-account-${data.google_project.project.number}"
+  account_id   = "storage-account-${var.project_id}"
   display_name = "Storage Account for API Services"
   description  = "Conta de Serviço Storage com permissão de 'Administrador de Objeto do Storage' para uso das APIs para gerenciar arquivos nos buckets"
-
+  project      = var.project_id
   depends_on = [
-    data.google_project.project,
     google_storage_bucket.bucket-storage
   ]
 }
@@ -135,9 +125,9 @@ resource "google_service_account" "storage-account" {
 resource "google_project_iam_member" "storage-account-iam" {
   for_each = (var.storage_account_create || var.storage_account_condition) ? { default : 1 } : {}
 
-  project = data.google_project.project.project_id
+  project = var.project_id
   role    = var.storage_account_iam_role
-  member  = var.storage_account_create ? google_service_account.storage-account.member : var.storage_account_member
+  member  = var.storage_account_create ? google_service_account.storage-account[each.key].member : var.storage_account_member
 
   dynamic "condition" {
     for_each = var.storage_account_condition ? { default : 1 } : {}
@@ -150,7 +140,6 @@ resource "google_project_iam_member" "storage-account-iam" {
   }
 
   depends_on = [
-    data.google_project.project,
     google_storage_bucket.bucket-storage,
     google_service_account.storage-account
   ]
@@ -160,12 +149,11 @@ resource "google_project_iam_member" "storage-account-iam" {
 resource "google_service_account_key" "storage-account-key" {
   for_each = var.storage_account_create ? { default : 1 } : {}
 
-  service_account_id = google_service_account.storage-account.name
+  service_account_id = google_service_account.storage-account[each.key].name
   public_key_type    = var.storage_account_key_public_type
   private_key_type   = var.storage_account_key_private_type
 
   depends_on = [
-    data.google_project.project,
     google_service_account.storage-account,
     google_project_iam_member.storage-account-iam
   ]
@@ -175,11 +163,37 @@ resource "google_service_account_key" "storage-account-key" {
 resource "local_file" "storage-account-key-export" {
   for_each = var.storage_account_create ? { default : 1 } : {}
 
-  content  = base64decode(google_service_account_key.storage-account-key.private_key)
+  content  = base64decode(google_service_account_key.storage-account-key[each.key].private_key)
   filename = "${path.root}/terraform.${local.env}.storage.account.key.json"
 
   depends_on = [
-    data.google_project.project,
     google_service_account_key.storage-account-key
+  ]
+}
+
+# Armazena a chave privada em um Secret Manager Secret
+resource "google_secret_manager_secret" "secret-storage-account-key" {
+  for_each = var.storage_account_create ? { default : 1 } : {}
+
+  secret_id = "storage-account-key-${each.key}"
+  project   = var.project_id
+  replication {
+    auto {}
+  }
+
+  depends_on = [
+    google_service_account_key.storage-account-key
+  ]
+}
+
+# Armazena a chave privada como uma versão do Secret
+resource "google_secret_manager_secret_version" "secret-storage-account-key-version" {
+  for_each = var.storage_account_create ? { default : 1 } : {}
+
+  secret      = google_secret_manager_secret.secret-storage-account-key[each.key].id
+  secret_data = google_service_account_key.storage-account-key[each.key].private_key
+
+  depends_on = [
+    google_secret_manager_secret.secret-storage-account-key
   ]
 }

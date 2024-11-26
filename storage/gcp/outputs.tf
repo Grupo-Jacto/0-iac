@@ -17,48 +17,48 @@ output "resource_bucket_storage" {
 
 # Saída de dados do recurso de Permissão do AllUsers do Bucket Storage
 output "resource_bucket_storage_iam" {
-  value = {
-    _id    = google_storage_bucket_iam_binding.bucket-storage-iam.id
-    bucket = google_storage_bucket_iam_binding.bucket-storage-iam.bucket
-    role   = google_storage_bucket_iam_binding.bucket-storage-iam.role
-  }
+  value = [for permission in google_storage_bucket_iam_binding.bucket-storage-iam : {
+    _id    = permission.id
+    bucket = permission.bucket
+    role   = permission.role
+  }]
   description = "Dados do recurso de Permissão do AllUsers do Bucket Storage"
 }
 
 # Saída de dados do recurso para criação de um Service Account para o Storage
 output "resource_storage_account" {
-  value = {
-    _id         = google_service_account.storage-account.id
-    name        = google_service_account.storage-account.display_name
-    email       = google_service_account.storage-account.email
-    member      = google_service_account.storage-account.member
-    description = google_service_account.storage-account.description
-    disabled    = google_service_account.storage-account.disabled
-    _project    = google_service_account.storage-account.project
-  }
+  value = [for account in google_service_account.storage-account : {
+    _id         = account.id
+    name        = account.display_name
+    email       = account.email
+    member      = account.member
+    description = account.description
+    disabled    = account.disabled
+    _project    = account.project
+  }]
   description = "Dados do recurso para criação de um Service Account para o Storage"
 }
 
 # Saída de dados do recurso de Permissão para a Service Account Storage
 output "resource_storage_account_iam" {
-  value = {
-    _id      = google_project_iam_member.storage-account-iam.id
-    bucket   = google_project_iam_member.storage-account-iam.project
-    member   = google_project_iam_member.storage-account-iam.member
-    role     = google_project_iam_member.storage-account-iam.role
-    _project = google_project_iam_member.storage-account-iam.project
-  }
+  value = [for account in google_project_iam_member.storage-account-iam : {
+    _id      = account.id
+    bucket   = account.project
+    member   = account.member
+    role     = account.role
+    _project = account.project
+  }]
   description = "Dados do recurso de Permissão para a Service Account Storage"
 }
 
 # Saída de dados do recurso para criar Private e Public Key para a Service Account Storage
 output "resource_storage_account_key" {
-  value = {
-    _id                = google_service_account_key.storage-account-key.id
-    service_account_id = google_service_account_key.storage-account-key.service_account_id
-    valid_after        = google_service_account_key.storage-account-key.valid_after
-    valid_before       = google_service_account_key.storage-account-key.valid_before
-  }
+  value = [for key in google_service_account_key.storage-account-key : {
+    _id                = key.id
+    service_account_id = key.service_account_id
+    valid_after        = key.valid_after
+    valid_before       = key.valid_before
+  }]
   description = "Dados do recurso para criar Private e Public Key para a Service Account Storage"
 }
 
@@ -88,36 +88,48 @@ output "storage_link" {
 
 # Role do Storage Bucket
 output "storage_role" {
-  value       = google_storage_bucket_iam_binding.bucket-storage-iam.role
+  value = [for bind in google_storage_bucket_iam_binding.bucket-storage-iam : {
+    role = bind.role
+  }]
   description = "Role do Storage Bucket"
 }
 
 # ID da Service Account
 output "storage_account_id" {
-  value       = google_service_account.storage-account.id
+  value = [for account in google_service_account.storage-account : {
+    _id = account.id
+  }]
   description = "ID da Service Account"
 }
 
 # Nome da Service Account
 output "storage_account_name" {
-  value       = google_service_account.storage-account.display_name
+  value = [for account in google_service_account.storage-account : {
+    name = account.display_name
+  }]
   description = "Nome da Service Account"
 }
 
 # Email da Service Account
 output "storage_account_email" {
-  value       = google_service_account.storage-account.email
+  value = [for account in google_service_account.storage-account : {
+    email = account.email
+  }]
   description = "Email da Service Account"
 }
 
 # Membro da Service Account
 output "storage_account_member" {
-  value       = google_service_account.storage-account.member
+  value = [for account in google_service_account.storage-account : {
+    member = account.member
+  }]
   description = "Membro da Service Account"
 }
 
 # Role da Service Account
 output "storage_account_role" {
-  value = google_project_iam_member.storage-account-iam.role
+  value = [for account in google_project_iam_member.storage-account-iam : {
+    role = account.role
+  }]
   description = "Role da Service Account"
 }

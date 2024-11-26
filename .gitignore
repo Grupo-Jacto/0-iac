@@ -42,3 +42,6 @@ terraform.*.json
 
 #trash
 *.exe
+
+#pasta de validacao
+validacao

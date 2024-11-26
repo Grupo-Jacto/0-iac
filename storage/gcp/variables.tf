@@ -2,7 +2,6 @@
 variable "project_id" {
   type        = string
   description = "ID do projeto"
-
   validation {
     condition     = can(regex("^[a-z0-9][a-z0-9_-]{4,28}[a-z0-9]$", var.project_id))
     error_message = "O project_id deve conter apenas:\n- letras minúsculas\n- número\n- hifén."
@@ -11,14 +10,13 @@ variable "project_id" {
 variable "name" {
   type        = string
   description = "Nome do Storage Bucket."
-
   validation {
     condition     = !strcontains(var.name, "goog") && !strcontains(var.name, "g00g") && !strcontains(var.name, "gogl") && !strcontains(var.name, "g0gl")
     error_message = "O nome do bucket não pode conter 'goog', 'g00g', 'gogl', 'g0gl'."
   }
   validation {
     condition     = length(regex("^[a-z0-9][a-z0-9_-]{1,61}[a-z0-9]$", var.name)) > 0
-    error_message = "O nome do bucket deve:\n- Conter entre 3 e 63 caracteres.\n- Apenas letras minúsculas, número, hifén e underline."
+    error_message = "O nome do bucket deve:\n- Conter entre 3 e 63 caracteres.\n- Apenas letras minúsculas, número, hifén e underline.\n- Iniciar e terminar com letra ou número."
   }
 }
 variable "labels" {
@@ -27,14 +25,13 @@ variable "labels" {
     technician = string
   })
   description = "Labels adicionais para o recurso. Parametros `owner` e `technician` são obrigatórios."
-
   validation {
     condition     = can(regex("^[a-z][a-z0-9_-]{0,62}$", var.labels.owner))
-    error_message = "O label owner deve:\n- Conter entre 1 e 63 caracteres.\n- Iniciar com letras minúsculas.\n- Apenas letras minúsculas, número, hifén e underline."
+    error_message = "O label owner deve:\n- Conter entre 2 e 63 caracteres.\n- Iniciar com letras minúsculas.\n- Apenas letras minúsculas, número, hifén e underline."
   }
   validation {
     condition     = can(regex("^[a-z][a-z0-9_-]{0,62}$", var.labels.technician))
-    error_message = "O label technician deve:\n- Conter entre 1 e 63 caracteres..\n- Iniciar com letras minúsculas.\n- Apenas letras minúsculas, número, hifén e underline."
+    error_message = "O label technician deve:\n- Conter entre 2 e 63 caracteres.\n- Iniciar com letras minúsculas.\n- Apenas letras minúsculas, número, hifén e underline."
   }
 }
 
@@ -123,6 +120,10 @@ variable "autoclass" {
   type        = bool
   description = "Ativa ou desativa a classe de armazenamento automática."
   default     = false
+  validation {
+    condition     = contains([true, false], var.autoclass)
+    error_message = "A autoclass precisa ser ativada com 'true' ou 'false'"
+  }
 }
 variable "autoclass_terminal" {
   type        = string
@@ -135,19 +136,31 @@ variable "autoclass_terminal" {
   }
 }
 variable "public_prevention" {
-  type        = bool
+  type        = string
   description = "Ativa ou desativa a prevenção de acesso público."
-  default     = true
+  default     = "inherited"
+  validation {
+    condition     = contains(["inherited", "enforced"], var.public_prevention)
+    error_message = "O valor para ativar ou não a prevenção de acesso publico é 'inherited'(para acesso interno) ou 'enforced'(para acesso publico)"
+  }
 }
 variable "uniform_access" {
   type        = bool
   description = "Ativa ou desativa o acesso uniforme ao bucket."
   default     = true
+  validation {
+    condition     = contains([true, false], var.uniform_access)
+    error_message = "O valor para ativar ou não o acesso uniforme ao bucket é 'true' ou 'false'"
+  }
 }
 variable "force_destroy" {
   type        = bool
   description = "Força exclusão do bucket mesmo contendo arquivos."
   default     = true
+  validation {
+    condition     = contains([true, false], var.force_destroy)
+    error_message = "O valor para ativar ou não forçar destruir é 'true' ou 'false'"
+  }
 }
 variable "cors_age" {
   type        = number
@@ -163,38 +176,93 @@ variable "cors_origin" {
   type        = list(string)
   description = "Lista de origens que o cors aceita."
   default     = ["*"]
+  validation {
+    condition = alltrue([for origin in var.cors_origin :
+    contains(["GET", "HEAD", "PUT", "POST", "DELETE", "*"], origin)])
+    error_message = "O valor precisa ser um dos seguintes:\n'GET', 'HEAD', 'PUT', 'POST', 'DELETE', '*'"
+  }
 }
 variable "cors_method" {
   type        = list(string)
   description = "Lista de métodos que o cors do bucket aceita."
   default     = ["GET"]
+  validation {
+    condition = length(var.cors_method) >= 1 || alltrue([for method in var.cors_method :
+    contains(["GET", "HEAD", "PUT", "POST", "DELETE", "*"], method)])
+    error_message = "O valor precisa ser entre:\n'GET', 'HEAD', 'PUT', 'POST', 'DELETE'"
+  }
 }
 variable "cors_header" {
   type        = list(string)
   description = "Lista de cabeçalhos que o cors do bucket aceita."
   default     = ["Access-Control-Allow-Origin"]
+  validation {
+    condition = alltrue([for header in var.cors_header :
+      contains([
+        "Access-Control-Allow-Origin",
+        "Accept-Charset",
+        "Accept-Encoding",
+        "Access-Control-Request-Headers",
+        "Access-Control-Request-Method",
+        "Connection",
+        "Content-Length",
+        "Cookie",
+        "Cookie2",
+        "Date",
+        "DNT",
+        "Expect",
+        "Host",
+        "Keep-Alive",
+        "Origin",
+        "Referer",
+        "Set-Cookie",
+        "TE",
+        "Trailer",
+        "Transfer-Encoding",
+        "Upgrade",
+        "Via",
+        "*"
+    ], header)])
+    error_message = "Os valores precisam ser entre:\n'Accept-Charset'\n'Accept-Encoding'\n'Access-Control-Request-Headers'\n'Access-Control-Request-Method'\n'Connection'\n'Content-Length'\n'Cookie'\n'Cookie2'\n'Date'\n'DNT'\n'Expect'\n'Host'\n'Keep-Alive'\n'Origin'\n'Referer'\n'Set-Cookie'\n'TE'\n'Trailer'\n'Transfer-Encoding'\n'Upgrade'\n'Via'\n'*'"
+  }
 }
 variable "website" {
   type        = bool
   description = "Ativa ou desativa o website do bucket."
   default     = false
+  validation {
+    condition     = contains([true, false], var.website)
+    error_message = "O valor para ativar ou não website é 'true' ou 'false'"
+  }
 }
 variable "website_main" {
   type        = string
   description = "Arquivo que será utilizado como página principal do bucket, (index.html por padrão)."
   default     = "index.html"
+  validation {
+    condition     = can(regex("([a-z0-9]{1,15}\\.(html|htm|php|asp|jsp|cgi|shtml))", var.website_main))
+    error_message = "O arquivo para o website deve conter o seguinte padrão: <nome>.<extensao> onde extensao pode ser: html, htm, php, asp, jsp, cgi ou shtml"
+  }
 }
 variable "website_error" {
   type        = string
   description = "Arquivo que será utilizado como página não encontrado do bucket, (404.html por padrão)."
   default     = "404.html"
+  validation {
+    condition     = can(regex("([a-z0-9]{1,15}\\.(html|htm|php|asp|jsp|cgi|shtml))", var.website_error))
+    error_message = "O arquivo para o website deve conter o seguinte padrão: <nome>.<extensao> onde extensao pode ser: html, htm, php, asp, jsp, cgi ou shtml"
+  }
 }
 
 # Variáveis referentes ao IAM de acesso public para Storage Bucket
 variable "iam_public" {
   type        = bool
   description = "Ativa ou desativa a permissão de visualização publica dos objetos do bucket"
-  default     = false
+  default     = true
+  validation {
+    condition     = contains([true, false], var.iam_public)
+    error_message = "O valor para o IAM ser publico precisa ser entre 'true' e 'false'"
+  }
 }
 variable "iam_member_viewer" {
   type        = list(string)
@@ -232,11 +300,19 @@ variable "storage_account_create" {
   type        = bool
   description = "Ativa ou desativa a criação de uma conta de serviço para o bucket"
   default     = true
+  validation {
+    condition     = contains([true, false], var.storage_account_create)
+    error_message = "O valor para a criação de conta precisa ser entre 'true' e 'false'"
+  }
 }
 variable "storage_account_condition" {
   type        = bool
   description = "Ativa ou desativa a condição de acesso ao bucket"
   default     = false
+  validation {
+    condition     = contains([true, false], var.storage_account_condition)
+    error_message = "O valor para a ativação de condição de acesso no bucket precisa ser entre 'true' e 'false'"
+  }
 }
 variable "storage_account_member" {
   type        = string
